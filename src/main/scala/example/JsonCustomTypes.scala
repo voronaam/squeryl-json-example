@@ -36,6 +36,7 @@ case class JsonTester(val extra: HashMap[String, Any] = null) {
 }
 
 case class OptionJsonTester(val extra: Option[HashMap[String, Any]] = None) {
+  def this() = this(Some(new HashMap[String, Any]())) // Squeryl trap
 }
 
 import XsnTypeMode._

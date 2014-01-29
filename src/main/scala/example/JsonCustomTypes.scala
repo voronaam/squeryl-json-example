@@ -57,7 +57,7 @@ object JsonTests {
     Class.forName("org.h2.Driver")
     SessionFactory.concreteFactory = Some(() =>
       Session.create(
-        java.sql.DriverManager.getConnection("jdbc:h2:~/test", "sa", ""),
+        java.sql.DriverManager.getConnection("jdbc:h2:mem:test", "sa", ""),
         new H2Adapter))
         
     test // works

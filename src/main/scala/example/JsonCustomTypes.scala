@@ -7,6 +7,7 @@ import java.sql.ResultSet
 import org.squeryl.adapters.H2Adapter
 import java.util.Date
 import scala.collection.mutable.HashMap
+import org.squeryl.annotations.Column
 
 object XsnTypeMode extends PrimitiveTypeMode {
   import com.codahale.jerkson.Json._
@@ -35,8 +36,8 @@ object XsnTypeMode extends PrimitiveTypeMode {
 case class JsonTester(val extra: HashMap[String, Any] = null) {
 }
 
-case class OptionJsonTester(val extra: Option[HashMap[String, Any]] = None) {
-  def this() = this(Some(new HashMap[String, Any]())) // Squeryl trap
+case class OptionJsonTester( @Column(optionType = classOf[Map[String, Any]]) val extra: Option[HashMap[String, Any]] = None) {
+  // def this() = this(Some(new HashMap[String, Any]())) // Squeryl trap
 }
 
 import XsnTypeMode._

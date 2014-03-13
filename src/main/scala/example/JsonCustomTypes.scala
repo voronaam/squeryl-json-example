@@ -55,7 +55,7 @@ object JsonTesterSchema extends Schema {
 object OptionJsonTesterSchema extends Schema {
   val optionTimestampTester = table[OptionJsonTester]
 }
-class Article( @Column("id") val id: Int, @Column("title") val title: String)
+class Article( @Column("id") val id: Int, @Column("title") val title: String, @Column("ready") val ready: Boolean)
 object ArticlesSchema extends Schema {
   val articles = table[Article]
 }
@@ -76,7 +76,8 @@ object JsonTests {
 //    test // works
 //    testOption // fails
 //    testRs
-      testQ
+//    testQ
+      testBool
   }
 
   def testMap = new HashMap[String, Any] { put("key", "value") }
@@ -134,14 +135,25 @@ object JsonTests {
     val holder = java.sql.DriverManager.getConnection("jdbc:h2:mem:test", "sa", "")
     transaction {
       ArticlesSchema.create
-      val products: List[Option[String]] = List(Some("content"), Some("2"), Some("3"))
+      val products: List[Option[String]] = List(None, Some("content"), Some("2"), Some("3"))
       val (n1 :: n2 :: n3 :: rest) = products
-      val ls = from(ArticlesSchema.articles)(a => where(a.title like n1.?) select(a.id))
+      val ls = from(ArticlesSchema.articles)(a => where(a.title like n1) select(a.id))
       println("Testing the Query.statement method")
       println(ls.statement)
       println
       println("Testing the real query")
       ls.toList
+    }
+  }
+  
+  def testBool = {
+    implicit def allowBooleanTE(te: org.squeryl.dsl.TypedExpression[Boolean, org.squeryl.dsl.TBoolean]): org.squeryl.dsl.ast.LogicalBoolean = new org.squeryl.dsl.ast.PostfixOperatorNode("", te) with org.squeryl.dsl.ast.LogicalBoolean
+    implicit def allowBoolean(e: Boolean): org.squeryl.dsl.ast.LogicalBoolean = new org.squeryl.dsl.ast.PostfixOperatorNode("", booleanToTE(e)) with org.squeryl.dsl.ast.LogicalBoolean
+    inTransaction {
+      val q = from(ArticlesSchema.articles)(s => where(s.ready) select(s))
+      println(q.statement)
+      val q2 = from(ArticlesSchema.articles)(s => where(not(s.ready)) select(s))
+      println(q2.statement)
     }
   }
 
